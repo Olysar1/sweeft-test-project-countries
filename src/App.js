@@ -1,9 +1,14 @@
 import "./App.css";
-import CountryPicker from "./components/CountryPicker/CountryPicker";
+import CountryPicker from "./components/CountryPicker";
 import { useState } from "react";
 
 function App() {
-  const [pickedCountry, setPickedCountry] = useState(null);
+  const [pickedCountry, setPickedCountry] = useState("");
+
+  console.log(pickedCountry);
+  const handlePick = (e) => {
+    setPickedCountry(e.target.value);
+  };
 
   // fetch("https://restcountries.com/v3.1/all?fields=name")
   //   .then((res) => res.json())
@@ -11,7 +16,7 @@ function App() {
 
   return (
     <div className="App">
-      <CountryPicker />
+      <CountryPicker pickedCountry={pickedCountry} handlePick={handlePick} />
     </div>
   );
 }
