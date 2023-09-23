@@ -4,11 +4,14 @@ import { Avatar, Grid, Typography } from "@mui/material";
 import CountryData from "./CountryData";
 import { useEffect, useState } from "react";
 import useFetchData from "../hooks/useFetchData";
+import { useParams } from "react-router-dom";
 
-const CountryBody = ({ pickedCountry }) => {
+const CountryBody = () => {
   const [country, setCountry] = useState(null);
+  const { countryCode } = useParams();
+
   const [data, error, isLoading] = useFetchData(
-    `https://restcountries.com/v3.1/name/${pickedCountry}`
+    `https://restcountries.com/v3.1/alpha/${countryCode}`
   );
 
   useEffect(() => {

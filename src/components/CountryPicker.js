@@ -5,7 +5,7 @@ import useFetchData from "../hooks/useFetchData";
 
 const CountryPicker = ({ pickedCountry, handlePick }) => {
   const [data, error, isLoading] = useFetchData(
-    "https://restcountries.com/v3.1/all?fields=name"
+    "https://restcountries.com/v3.1/all?fields=name,cca2"
   );
 
   return (
@@ -30,7 +30,7 @@ const CountryPicker = ({ pickedCountry, handlePick }) => {
         {isLoading && <MenuItem>Loading...</MenuItem>}
         {data &&
           data.map((country) => (
-            <MenuItem key={country.name.official} value={country.name.official}>
+            <MenuItem key={country.name.official} value={country.cca2}>
               {country.name.common}
             </MenuItem>
           ))}
