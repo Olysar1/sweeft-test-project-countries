@@ -10,15 +10,18 @@ const useFetchData = (url) => {
 
   useEffect(() => {
     (async function () {
+      console.log("request sent"); //for development purposes
       try {
         setIsLoading(true);
         const response = await fetch(url);
         if (!response.ok)
           throw new Error("Something went wrong while fetching data");
         const data = await response.json();
-        setData(data);
+        setData(
+          data.sort((a, b) => a.name.common.localeCompare(b.name.common))
+        );
       } catch (err) {
-        setError(err);
+        return setError(err);
       } finally {
         setIsLoading(false);
       }
