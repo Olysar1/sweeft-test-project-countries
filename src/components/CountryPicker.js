@@ -4,7 +4,7 @@ import { MenuItem, TextField } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
 
 const CountryPicker = ({ pickedCountry, handlePick }) => {
-  const [data, error, isLoading] = useFetchData(
+  const { data, error, isLoading } = useFetchData(
     "https://restcountries.com/v3.1/all?fields=name,cca2"
   );
 

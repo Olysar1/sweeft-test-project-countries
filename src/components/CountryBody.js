@@ -10,7 +10,7 @@ const CountryBody = () => {
   const [country, setCountry] = useState(null);
   const { countryCode } = useParams();
 
-  const [data, error, isLoading] = useFetchData(
+  const { data, error, isLoading } = useFetchData(
     `https://restcountries.com/v3.1/alpha/${countryCode}`
   );
 

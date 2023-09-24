@@ -2,26 +2,44 @@
 //Returns array [data, error, isLoading]
 
 import { useEffect, useState } from "react";
+import { useStore } from "react-redux";
 
-const useFetchData = (url) => {
+const useFetchData = (url, pickedCountry = "") => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [isloading, setIsLoading] = useState(false);
+  const store = useStore();
+  const cachedData = store.getState().cache;
 
   useEffect(() => {
     const abortControl = new AbortController();
 
     (async function () {
-      console.log("request sent"); //for development purposes
+      if (url.endsWith("/alpha/")) return;
+
       try {
         setIsLoading(true);
-        const response = await fetch(url, { signal: abortControl.signal });
-        if (!response.ok)
-          throw new Error("Something went wrong while fetching data");
-        const data = await response.json();
-        setData(
-          data.sort((a, b) => a.name.common.localeCompare(b.name.common))
+        const isCountryInCache = cachedData.some(
+          (country) => country.cca2 === pickedCountry
         );
+        //check if country is in redux store
+        if (isCountryInCache) {
+          const cachedCountry = cachedData.find(
+            (country) => country.cca2 === pickedCountry
+          );
+          setData([{ ...cachedCountry }]);
+          return;
+        } else {
+          console.log("request sent"); //for development purposes
+          const response = await fetch(url, { signal: abortControl.signal });
+          if (!response.ok)
+            throw new Error("Something went wrong while fetching data");
+          const data = await response.json();
+          setData(
+            data.sort((a, b) => a.name.common.localeCompare(b.name.common))
+          );
+        }
+
         setIsLoading(false);
       } catch (err) {
         if (err.name === "AbortError") {
@@ -33,9 +51,9 @@ const useFetchData = (url) => {
       }
     })();
     return () => abortControl.abort();
-  }, [url]);
+  }, [url, cachedData, pickedCountry]);
 
-  return [data, error, isloading];
+  return { data, error, isloading };
 };
 
 export default useFetchData;

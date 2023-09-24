@@ -17,15 +17,16 @@ function App() {
   const [userLocation, setUserLocation] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const [pickedCountryData, setPickedCountryData] = useState(null);
-  const [data, error] = useFetchData(
-    `https://restcountries.com/v3.1/alpha/${pickedCountry}`
+  const { data, error } = useFetchData(
+    `https://restcountries.com/v3.1/alpha/${pickedCountry}`,
+    pickedCountry
   );
 
   //handles users action of picking countries
   const handlePick = (e) => {
     setPickedCountry(e.target.value);
     error && console.error(error);
+    console.log(data);
     data && dispatch(cacheItem(data[0]));
   };
 
