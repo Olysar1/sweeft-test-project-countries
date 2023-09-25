@@ -40,7 +40,9 @@ const CountryPicker = ({ pickedCountry, handlePick, handleCountryList }) => {
       <TextField
         label="Select a Country"
         select
-        value={pickedCountry || ""}
+        value={
+          countriesArrRef.current.length === 0 ? "" : pickedCountry.slice(0, 2)
+        }
         onChange={handlePick}
         fullWidth
         SelectProps={{

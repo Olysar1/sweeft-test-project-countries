@@ -86,7 +86,8 @@ const ExchangeTabPanel = ({ pickedCountry, countryList }) => {
             const result = data.query.amount * data.info.rate;
             setConvertedCurrency(result);
             handleRememberData(from, to, data);
-          });
+          })
+          .catch((err) => console.error(`Error: ${err}`));
       }
     }
   }, [userInput, firstCountry, secondCountry]);

@@ -37,7 +37,7 @@ const BottomTabsComponent = ({ pickedCountry, countryList, show = "0" }) => {
           />
         </TabPanel>
         <TabPanel value={"2"} sx={{ padding: 0 }}>
-          <AirportsTabPanel />
+          <AirportsTabPanel pickedCountry={pickedCountry} />
         </TabPanel>
       </TabContext>
     </Box>

@@ -105,7 +105,12 @@ function App() {
               />
             }
           />
-          <Route path="airports" element={<BottomTabsComponent show={"2"} />} />
+          <Route
+            path="airports"
+            element={
+              <BottomTabsComponent pickedCountry={pickedCountry} show={"2"} />
+            }
+          />
         </Route>
       </Routes>
     </Box>
