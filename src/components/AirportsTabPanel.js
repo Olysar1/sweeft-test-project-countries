@@ -2,6 +2,7 @@
 
 import { Grid, Input, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import { filterMatchingAirports } from "../utils/filterMatchingAirports";
 
 const AIRPORTS_API_KEY = "2oSJO3D5MMLUsO8cRJ6kNA==wDcNYghgUJZnkWjx";
 
@@ -32,20 +33,11 @@ const AirportsTabPanel = ({ pickedCountry }) => {
       .catch((err) => console.error(`Error: ${err}`));
   }, [newPickedCountry]);
 
-  //filter airports
-  const filterMatch = (original, substring) => {
-    if (!substring) {
-      return original;
-    } else {
-      return original.filter((airport) =>
-        airport.name.toLowerCase().includes(substring.toLowerCase())
-      );
-    }
-  };
-
+  //filter airports when user writes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (userInput) setFilteredAirports(filterMatch(airports, userInput));
+      if (userInput)
+        setFilteredAirports(filterMatchingAirports(airports, userInput));
     }, 500);
 
     return () => clearTimeout(timeoutId);
