@@ -4,37 +4,49 @@ import { Box, Paper } from "@mui/material";
 import "./App.css";
 import CountryBody from "./components/CountryBody";
 import CountryPicker from "./components/CountryPicker";
-import { useEffect, useState } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { cacheItem } from "./redux/cacheActions";
+import { cacheItem } from "./redux/cache/cacheActions";
 import useFetchData from "./hooks/useFetchData";
 import { getUserLocation } from "./utils/getUserLocation";
 import { findUser } from "./utils/findUser";
+import BottomTabsComponent from "./components/BottomTabsComponent";
 
 function App() {
   const [pickedCountry, setPickedCountry] = useState("");
+  const [countryList, setCountryList] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
+  const prevPickedCountryRef = useRef(pickedCountry);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { data, error } = useFetchData(
     `https://restcountries.com/v3.1/alpha/${pickedCountry}`,
     pickedCountry
   );
 
+  //saves a list of countries in "countryList" //format[{commonName:..., officialName:..., cca2:...},{...}...]
+  const handleCountryList = useCallback((arr) => {
+    setCountryList(arr);
+  }, []);
+
   //handles users action of picking countries
   const handlePick = (e) => {
     setPickedCountry(e.target.value);
     error && console.error(error);
-    console.log(data);
     data && dispatch(cacheItem(data[0]));
   };
 
   //gets users country using geocoding and initializes pickedCountry
   useEffect(() => {
-    userLocation &&
-      findUser(userLocation).then((res) => setPickedCountry(res.toUpperCase()));
-  }, [userLocation]);
+    if (location.pathname === "/") {
+      userLocation &&
+        findUser(userLocation).then((res) =>
+          setPickedCountry(res.toUpperCase())
+        );
+    }
+  }, [userLocation, location.pathname]);
 
   //gets asks for the users coordinates and sets userLocation
   useEffect(() => {
@@ -47,39 +59,48 @@ function App() {
 
   //navigates to the picked country page
   useEffect(() => {
-    navigate(`/${pickedCountry}`);
+    if (prevPickedCountryRef.current !== pickedCountry) {
+      navigate(`/${pickedCountry}`);
+      prevPickedCountryRef.current = pickedCountry;
+    }
   }, [pickedCountry, navigate]);
 
   return (
     <Box className="App">
-      <CountryPicker pickedCountry={pickedCountry} handlePick={handlePick} />
+      <CountryPicker
+        pickedCountry={pickedCountry}
+        handlePick={handlePick}
+        handleCountryList={handleCountryList}
+      />
       <Routes>
         <Route
           path="/"
           element={
-            <Paper
-              sx={{
-                padding: 1,
-                marginTop: 3,
-                minHeight: 70,
-              }}
-            ></Paper>
+            <div>
+              <Paper
+                sx={{
+                  padding: 1,
+                  marginTop: 3,
+                  minHeight: 70,
+                }}
+              ></Paper>
+              <BottomTabsComponent />
+            </div>
           }
         />
-        <Route
-          path="/:countryCode"
-          element={
-            <Paper
-              sx={{
-                padding: 1,
-                marginTop: 3,
-                minHeight: 70,
-              }}
-            >
-              <CountryBody />
-            </Paper>
-          }
-        />
+        <Route path="/:countryCode" element={<CountryBody />}>
+          <Route
+            path=""
+            element={
+              <BottomTabsComponent
+                pickedCountry={pickedCountry}
+                countryList={countryList}
+                show={"1"}
+              />
+            }
+          />
+          <Route path="airports" element={<BottomTabsComponent show={"2"} />} />
+        </Route>
       </Routes>
     </Box>
   );

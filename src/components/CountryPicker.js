@@ -2,11 +2,36 @@
 
 import { MenuItem, TextField } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
+import { useEffect, useRef } from "react";
 
-const CountryPicker = ({ pickedCountry, handlePick }) => {
+const CountryPicker = ({ pickedCountry, handlePick, handleCountryList }) => {
+  const countriesArrRef = useRef([]);
   const { data, error, isLoading } = useFetchData(
-    "https://restcountries.com/v3.1/all?fields=name,cca2"
+    "https://restcountries.com/v3.1/all?fields=name,cca2,currencies"
   );
+
+  const countriesArr =
+    data &&
+    data.map((country) => {
+      return {
+        commonName: country.name.common,
+        officialName: country.name.official,
+        cca2: country.cca2,
+      };
+    });
+
+  useEffect(() => {
+    if (data) {
+      const countries = data.map((country) => ({
+        commonName: country.name.common,
+        officialName: country.name.official,
+        cca2: country.cca2,
+        currency: country.currencies,
+      }));
+      countriesArrRef.current = countries;
+      handleCountryList(countries);
+    }
+  }, [data, handleCountryList]);
 
   return (
     <>
@@ -28,10 +53,10 @@ const CountryPicker = ({ pickedCountry, handlePick }) => {
       >
         {error && <MenuItem>{error.message}</MenuItem>}
         {isLoading && <MenuItem>Loading...</MenuItem>}
-        {data &&
-          data.map((country) => (
-            <MenuItem key={country.name.official} value={country.cca2}>
-              {country.name.common}
+        {countriesArr &&
+          countriesArr.map((country) => (
+            <MenuItem key={country.officialName} value={country.cca2}>
+              {country.commonName}
             </MenuItem>
           ))}
       </TextField>
