@@ -26,6 +26,12 @@ function App() {
     pickedCountry
   );
 
+  //check the url and set "pickedCountry" if we are not home or "/GE"
+  useEffect(() => {
+    const locationCheck = location.pathname.slice(1);
+    if (locationCheck !== "") setPickedCountry(locationCheck);
+  }, [location.pathname]);
+
   //saves a list of countries in "countryList" //format[{commonName:..., officialName:..., cca2:...},{...}...]
   const handleCountryList = useCallback((arr) => {
     setCountryList(arr);

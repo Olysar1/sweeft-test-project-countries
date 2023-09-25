@@ -10,6 +10,7 @@ const CountryPicker = ({ pickedCountry, handlePick, handleCountryList }) => {
     "https://restcountries.com/v3.1/all?fields=name,cca2,currencies"
   );
 
+  //generate array for local usage
   const countriesArr =
     data &&
     data.map((country) => {
@@ -20,6 +21,7 @@ const CountryPicker = ({ pickedCountry, handlePick, handleCountryList }) => {
       };
     });
 
+  //generate array with the needed information
   useEffect(() => {
     if (data) {
       const countries = data.map((country) => ({
@@ -38,7 +40,7 @@ const CountryPicker = ({ pickedCountry, handlePick, handleCountryList }) => {
       <TextField
         label="Select a Country"
         select
-        value={pickedCountry}
+        value={pickedCountry || ""}
         onChange={handlePick}
         fullWidth
         SelectProps={{
@@ -54,11 +56,14 @@ const CountryPicker = ({ pickedCountry, handlePick, handleCountryList }) => {
         {error && <MenuItem>{error.message}</MenuItem>}
         {isLoading && <MenuItem>Loading...</MenuItem>}
         {countriesArr &&
-          countriesArr.map((country) => (
-            <MenuItem key={country.officialName} value={country.cca2}>
-              {country.commonName}
-            </MenuItem>
-          ))}
+          countriesArr.map((country) => {
+            if (country.cca2 === "AQ") return null; //Antarctica has a different structure and breaks the app(p.s the example website too...)
+            return (
+              <MenuItem key={country.officialName} value={country.cca2}>
+                {country.commonName}
+              </MenuItem>
+            );
+          })}
       </TextField>
     </>
   );

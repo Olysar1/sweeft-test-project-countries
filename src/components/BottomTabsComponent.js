@@ -1,8 +1,9 @@
-import { Box, Paper, Tab } from "@mui/material";
+import { Box, Tab } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ExchangeTabPanel from "./ExchangeTabPanel";
+import AirportsTabPanel from "./AirportsTabPanel";
 
 const BottomTabsComponent = ({ pickedCountry, countryList, show = "0" }) => {
   const [tab, setTab] = useState(show);
@@ -35,8 +36,8 @@ const BottomTabsComponent = ({ pickedCountry, countryList, show = "0" }) => {
             countryList={countryList}
           />
         </TabPanel>
-        <TabPanel value={"2"}>
-          <Paper>xaeroport</Paper>
+        <TabPanel value={"2"} sx={{ padding: 0 }}>
+          <AirportsTabPanel />
         </TabPanel>
       </TabContext>
     </Box>

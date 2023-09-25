@@ -31,13 +31,15 @@ const useFetchData = (url, pickedCountry = "") => {
           return;
         } else {
           console.log("request sent"); //for development purposes
+
           const response = await fetch(url, { signal: abortControl.signal });
           if (!response.ok)
             throw new Error("Something went wrong while fetching data");
           const data = await response.json();
-          setData(
-            data.sort((a, b) => a.name.common.localeCompare(b.name.common))
+          const finalData = data.sort((a, b) =>
+            a.name.common.localeCompare(b.name.common)
           );
+          setData(finalData);
         }
 
         setIsLoading(false);

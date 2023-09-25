@@ -1,3 +1,5 @@
+//Renders currency exchange information
+
 import {
   FormControl,
   InputLabel,
@@ -10,14 +12,16 @@ import {
   InputAdornment,
   TextField,
 } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { getCountryCurrencyData } from "../utils/getCountryCurrencyData";
 
 const ExchangeTabPanel = ({ pickedCountry, countryList }) => {
   const [secondCountryCode, setSecondCountryCode] = useState("");
   const [firstCountry, setFirstCountry] = useState(null);
   const [secondCountry, setSecondCountry] = useState(null);
-  const [currencyOutput, setCurrencyOutput] = useState(null);
+  const [convertedCurrency, setConvertedCurrency] = useState(null);
   const [userInput, setUserInput] = useState("1");
+  const currencyRef = useRef([]);
 
   //gets country data with provided cca2 code
   const getCountryData = useCallback(
@@ -26,15 +30,6 @@ const ExchangeTabPanel = ({ pickedCountry, countryList }) => {
     },
     [countryList]
   );
-
-  //gets currency symbol and key from provided country object
-  const getCountryCurrencyData = (countryObj) => {
-    const currencyKey = Object.values(Object.keys(countryObj.currency))[0];
-    return {
-      currencyKey: currencyKey,
-      symbol: countryObj.currency[currencyKey].symbol,
-    };
-  };
 
   //initialize first and second country states
   useEffect(() => {
@@ -54,29 +49,51 @@ const ExchangeTabPanel = ({ pickedCountry, countryList }) => {
   };
   //   userInput && console.log(userInput); //for development
 
+  //save currency data in ref
+  const handleRememberData = (from, to, data) => {
+    currencyRef.current = [
+      ...currencyRef.current,
+      { from, to, rate: data.info.rate },
+    ];
+  };
+
   //exchange currency on users request
   useEffect(() => {
     if (firstCountry && secondCountry) {
       const from = getCountryCurrencyData(firstCountry).currencyKey;
       const to = getCountryCurrencyData(secondCountry).currencyKey;
 
-      fetch(
-        `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${userInput}`
-      )
-        .then((response) => {
-          if (!response.ok)
-            throw new Error("something went wrong while converting currency");
-          return response.json();
-        })
-        .then((data) => {
-          setCurrencyOutput(data);
-        });
+      const isInCurrencyRef = currencyRef.current.find(
+        (item) => item.from === from && item.to === to
+      );
+
+      if (isInCurrencyRef) {
+        //check if the pair "from" and "to" are already in currencyRef
+
+        const rate = isInCurrencyRef.rate;
+        const result = userInput * rate;
+        setConvertedCurrency(result);
+      } else {
+        fetch(
+          `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${userInput}`
+        )
+          .then((response) => {
+            if (!response.ok)
+              throw new Error("something went wrong while converting currency");
+            return response.json();
+          })
+          .then((data) => {
+            const result = data.query.amount * data.info.rate;
+            setConvertedCurrency(result);
+            handleRememberData(from, to, data);
+          });
+      }
     }
   }, [userInput, firstCountry, secondCountry]);
 
   return (
     <Paper sx={{ padding: 2 }}>
-      <Typography variant="h4">CURRENCY EXCHANGE</Typography>
+      <Typography variant="h4">Currency Exchange</Typography>
       <FormControl variant="standard">
         <InputLabel>{secondCountry ? secondCountry.commonName : ""}</InputLabel>
         <Select
@@ -118,7 +135,7 @@ const ExchangeTabPanel = ({ pickedCountry, countryList }) => {
           </Typography>
           <FormControl sx={{ width: "40%" }}>
             <TextField
-              value={currencyOutput ? currencyOutput.result.toFixed(2) : ""}
+              value={convertedCurrency ? convertedCurrency.toFixed(3) : ""}
               disabled
               variant="standard"
               InputProps={{
